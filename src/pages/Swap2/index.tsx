@@ -330,10 +330,6 @@ const Swap = () => {
                     <p className="text-center font-normal md:text-[17.72px] md:leading-7 text-[#767676] max-w-[700px] mb-6">
                         At our cryptocurrency token exchange platform, we offer an easy-to-use token swap service that allows you to seamlessly exchange one type of token for another with maximum efficiency.
                     </p>
-                    <button className="flex items-center space-x-2 bg-[#3DBEA3] text-white font-medium text-base leading-[17.6px] px-[22px] py-4 rounded-full" onClick={toggleWalletModal}>
-                        <Wallet />
-                        <span>Connect wallet</span>
-                    </button>
                     
                     <Converter/>
 

@@ -72,11 +72,12 @@ export function useSwapActionHandlers(): {
 
 // try to parse a user entered amount for a given token
 export function tryParseAmount(value?: string, currency?: Currency): CurrencyAmount | undefined {
-  if (!value || !currency) {
+  if (!value || !currency || typeof (currency as any).decimals !== 'number') {
+    // Defensive: currency must exist and have decimals
     return undefined;
   }
   try {
-    const typedValueParsed = parseUnits(value, currency.decimals).toString();
+    const typedValueParsed = parseUnits(value, (currency as any).decimals).toString();
     if (typedValueParsed !== '0') {
       return currency instanceof Token
         ? new TokenAmount(currency, JSBI.BigInt(typedValueParsed))

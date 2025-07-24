@@ -190,13 +190,7 @@ const Limit2 = () => {
                         seamlessly exchange one type of token for another with
                         maximum efficiency.
                     </p>
-                    <button
-                        onClick={handleConnectWallet}
-                        className="flex items-center space-x-2 bg-[#3DBEA3] text-white font-medium text-base leading-[17.6px] px-[22px] py-4 rounded-full hover:bg-[#2A8576] transition-colors"
-                    >
-                        <Wallet className="w-4 h-4" />
-                        <span>Connect wallet</span>
-                    </button>
+                    
                     <div className="hero-border mt-[100px] mb-[150px] w-full p-[3.5px] md:rounded-[40px] rounded-[20px]">
                         <div className="bg-[linear-gradient(105.87deg,_rgba(0,0,0,0.2)_3.04%,_rgba(0,0,0,0)_96.05%)] relative backdrop-blur-[80px] w-full md:rounded-[40px] rounded-[20px] px-[15px] md:px-[50px] py-[20px] md:py-[60px]">
                             <div className="flex flex-col md:flex-row items-center gap-[25px] md:gap-[51px]">

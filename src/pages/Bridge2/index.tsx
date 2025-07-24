@@ -183,15 +183,7 @@ const Bridge = () => {
                     <p className="text-center font-normal md:text-[17.72px] md:leading-7 text-[#767676] max-w-[700px] mb-6">
                         At our cryptocurrency token exchange platform, we offer an easy-to-use token swap service that allows you to seamlessly exchange one type of token for another with maximum efficiency.
                     </p>
-                    {!account ? (
-                        <button className="flex items-center space-x-2 bg-[#3DBEA3] text-white font-medium text-base leading-[17.6px] px-[22px] py-4 rounded-full">
-                        <span>Connect wallet</span>
-                    </button>
-                    ) : (
-                        <button className="flex items-center space-x-2 bg-[#3DBEA3] text-white font-medium text-base leading-[17.6px] px-[22px] py-4 rounded-full" disabled>
-                            <span>{account.slice(0, 6)}...{account.slice(-4)}</span>
-                        </button>
-                    )}
+                
                     <div className="hero-border mt-[100px] mb-[53px] w-full p-[3.5px] md:rounded-[40px] rounded-[20px]">
                         <div className="bg-[linear-gradient(105.87deg,_rgba(0,0,0,0.2)_3.04%,_rgba(0,0,0,0)_96.05%)] relative backdrop-blur-[80px] w-full md:rounded-[40px] rounded-[20px] px-[15px] md:px-[50px] py-[20px] md:py-[60px]">
                             <div className="flex flex-col md:flex-row justify-between items-center gap-[25px] md:gap-[51px]">

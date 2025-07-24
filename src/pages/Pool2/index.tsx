@@ -45,27 +45,7 @@ const Pool2 = () => {
             At our cryptocurrency token exchange platform, we offer an easy-to-use token swap service that allows you to
             seamlessly exchange one type of token for another with maximum efficiency.
           </p>
-          <button className="flex items-center space-x-2 bg-[#3DBEA3] text-white font-medium text-base leading-[17.6px] px-[22px] py-4 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none">
-              <path
-                fill="#fff"
-                fill-rule="evenodd"
-                d="M13.607 6.574c-.037-.003-.076-.003-.117-.003h-1.623C10.54 6.571 9.402 7.625 9.402 9c0 1.374 1.137 2.429 2.465 2.429h1.622c.042 0 .081 0 .118-.003a1.132 1.132 0 0 0 1.06-1.174V7.749c0-.04 0-.082-.003-.12a1.132 1.132 0 0 0-1.057-1.055Zm-1.883 3.074c.342 0 .62-.29.62-.648a.634.634 0 0 0-.62-.648c-.342 0-.619.29-.619.648 0 .358.277.648.62.648Z"
-                clip-rule="evenodd"
-              />
-              <path
-                fill="#fff"
-                fill-rule="evenodd"
-                d="M13.49 12.4a.142.142 0 0 1 .141.18c-.129.461-.333.855-.662 1.186-.48.484-1.09.7-1.844.802-.732.099-1.667.099-2.848.099H6.919c-1.18 0-2.116 0-2.848-.1-.753-.102-1.363-.317-1.844-.801-.48-.485-.694-1.1-.796-1.859-.098-.738-.098-1.68-.098-2.87v-.074c0-1.19 0-2.132.098-2.87.102-.76.315-1.374.796-1.859.48-.484 1.09-.7 1.844-.801.732-.1 1.667-.1 2.848-.1h1.358c1.18 0 2.116 0 2.848.1.754.102 1.363.317 1.844.801.329.331.533.725.662 1.186a.142.142 0 0 1-.142.18h-1.622c-1.822 0-3.429 1.451-3.429 3.4 0 1.949 1.607 3.4 3.43 3.4h1.621ZM3.742 5.924a.484.484 0 0 0-.482.486c0 .268.215.485.482.485h2.57a.484.484 0 0 0 .482-.485.484.484 0 0 0-.482-.486h-2.57Z"
-                clip-rule="evenodd"
-              />
-              <path
-                fill="#fff"
-                d="M5.184 2.683 6.49 1.72a1.98 1.98 0 0 1 2.353 0l1.312.967a49.074 49.074 0 0 0-1.833-.021H6.875c-.615 0-1.18 0-1.69.016Z"
-              />
-            </svg>
-            <span>Connect wallet</span>
-          </button>
+          
           <div className="hero-border mt-[56px] w-full p-[3.5px] md:rounded-[40px] rounded-[20px] max-w-[690px]">
             <div className="bg-[linear-gradient(105.87deg,_rgba(0,0,0,0.2)_3.04%,_rgba(0,0,0,0)_96.05%)] relative backdrop-blur-[80px] w-full md:rounded-[40px] rounded-[20px] px-[15px] md:px-[50px] py-[20px] md:py-[60px]">
               <div className="relative z-10 border bg-[#FFFFFF66] inline-flex px-2 py-1.5 rounded-[14px] border-solid border-[#FFFFFF1A] mb-6 gap-2">

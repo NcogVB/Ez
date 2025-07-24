@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import WalletModal from '../components/WalletModal';
+import { useActiveWeb3React } from '../hooks';
 import { Link, useLocation } from 'react-router-dom';
 import { useWalletModalToggle } from '../state/application/hooks';
 
@@ -18,6 +20,26 @@ type DropdownType = 'currency' | 'language' | null;
 const Navbar: React.FC = () => {
 
   const toggleWalletModal = useWalletModalToggle();
+  const { account, deactivate } = useActiveWeb3React();
+  const [showAccountDropdown, setShowAccountDropdown] = useState(false);
+  const accountBtnRef = useRef(null);
+
+  // Close dropdown if clicked outside
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (accountBtnRef.current && !(accountBtnRef.current as any).contains(event.target)) {
+        setShowAccountDropdown(false);
+      }
+    }
+    if (showAccountDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showAccountDropdown]);
 
   const location = useLocation();
   const [isNavOpen, setIsNavOpen] = useState<boolean>(false);
@@ -67,6 +89,8 @@ const Navbar: React.FC = () => {
 
   return (
     <div className="px-4 lg:px-[36px] pt-3">
+      {/* Wallet Modal (must be present in DOM for toggle to work) */}
+      <WalletModal pendingTransactions={[]} confirmedTransactions={[]} />
       {/* Overlay */}
       <div
         className={`fixed w-full h-screen bg-black/40 z-1 backdrop-blur-sm left-0 top-0 transition-opacity duration-300 ${
@@ -223,30 +247,57 @@ const Navbar: React.FC = () => {
             </ul>
           </div>
 
-          {/* Connect Wallet Button */}
-          <button className="flex items-center space-x-2 bg-[#3DBEA3] text-white font-medium text-base leading-[17.6px] px-[16px] py-4 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"
-            onClick={toggleWalletModal}
+          {/* Connect Wallet Button or Address */}
+          {account ? (
+            <div className="relative" ref={accountBtnRef}>
+              <button
+                className="flex items-center space-x-2 bg-[#3DBEA3] text-white font-medium text-base leading-[17.6px] px-[16px] py-4 rounded-full"
+                type="button"
+                onClick={() => setShowAccountDropdown((v) => !v)}
+              >
+                <span>{account.slice(0, 6)}...{account.slice(-4)}</span>
+                <svg className={`w-4 h-4 transition-transform duration-200 ${showAccountDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {showAccountDropdown && (
+                <div className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                  <button
+                    className="w-full text-left px-4 py-2 text-sm text-gray-800 hover:bg-gray-100 rounded-lg"
+                    onClick={() => { deactivate(); setShowAccountDropdown(false); }}
+                  >
+                    Disconnect
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              className="flex items-center space-x-2 bg-[#3DBEA3] text-white font-medium text-base leading-[17.6px] px-[16px] py-4 rounded-full"
+              onClick={() => toggleWalletModal()}
+              type="button"
             >
-              <path
-                fill="#fff"
-                fill-rule="evenodd"
-                d="M13.607 6.574c-.037-.003-.076-.003-.117-.003h-1.623C10.54 6.571 9.402 7.625 9.402 9c0 1.374 1.137 2.429 2.465 2.429h1.622c.042 0 .081 0 .118-.003a1.132 1.132 0 0 0 1.06-1.174V7.749c0-.04 0-.082-.003-.12a1.132 1.132 0 0 0-1.057-1.055Zm-1.883 3.074c.342 0 .62-.29.62-.648a.634.634 0 0 0-.62-.648c-.342 0-.619.29-.619.648 0 .358.277.648.62.648Z"
-                clip-rule="evenodd"
-              />
-              <path
-                fill="#fff"
-                fill-rule="evenodd"
-                d="M13.49 12.4a.142.142 0 0 1 .141.18c-.129.461-.333.855-.662 1.186-.48.484-1.09.7-1.844.802-.732.099-1.667.099-2.848.099H6.919c-1.18 0-2.116 0-2.848-.1-.753-.102-1.363-.317-1.844-.801-.48-.485-.694-1.1-.796-1.859-.098-.738-.098-1.68-.098-2.87v-.074c0-1.19 0-2.132.098-2.87.102-.76.315-1.374.796-1.859.48-.484 1.09-.7 1.844-.801.732-.1 1.667-.1 2.848-.1h1.358c1.18 0 2.116 0 2.848.1.754.102 1.363.317 1.844.801.329.331.533.725.662 1.186a.142.142 0 0 1-.142.18h-1.622c-1.822 0-3.429 1.451-3.429 3.4 0 1.949 1.607 3.4 3.43 3.4h1.621ZM3.742 5.924a.484.484 0 0 0-.482.486c0 .268.215.485.482.485h2.57a.484.484 0 0 0 .482-.485.484.484 0 0 0-.482-.486h-2.57Z"
-                clip-rule="evenodd"
-              />
-              <path
-                fill="#fff"
-                d="M5.184 2.683 6.49 1.72a1.98 1.98 0 0 1 2.353 0l1.312.967a49.074 49.074 0 0 0-1.833-.021H6.875c-.615 0-1.18 0-1.69.016Z"
-              />
-            </svg>
-            <span onClick={toggleWalletModal} >Connect wallet</span>
-          </button>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none">
+                <path
+                  fill="#fff"
+                  fill-rule="evenodd"
+                  d="M13.607 6.574c-.037-.003-.076-.003-.117-.003h-1.623C10.54 6.571 9.402 7.625 9.402 9c0 1.374 1.137 2.429 2.465 2.429h1.622c.042 0 .081 0 .118-.003a1.132 1.132 0 0 0 1.06-1.174V7.749c0-.04 0-.082-.003-.12a1.132 1.132 0 0 0-1.057-1.055Zm-1.883 3.074c.342 0 .62-.29.62-.648a.634.634 0 0 0-.62-.648c-.342 0-.619.29-.619.648 0 .358.277.648.62.648Z"
+                  clip-rule="evenodd"
+                />
+                <path
+                  fill="#fff"
+                  fill-rule="evenodd"
+                  d="M13.49 12.4a.142.142 0 0 1 .141.18c-.129.461-.333.855-.662 1.186-.48.484-1.09.7-1.844.802-.732.099-1.667.099-2.848.099H6.919c-1.18 0-2.116 0-2.848-.1-.753-.102-1.363-.317-1.844-.801-.48-.485-.694-1.1-.796-1.859-.098-.738-.098-1.68-.098-2.87v-.074c0-1.19 0-2.132.098-2.87.102-.76.315-1.374.796-1.859.48-.484 1.09-.7 1.844-.801.732-.1 1.667-.1 2.848-.1h1.358c1.18 0 2.116 0 2.848.1.754.102 1.363.317 1.844.801.329.331.533.725.662 1.186a.142.142 0 0 1-.142.18h-1.622c-1.822 0-3.429 1.451-3.429 3.4 0 1.949 1.607 3.4 3.43 3.4h1.621ZM3.742 5.924a.484.484 0 0 0-.482.486c0 .268.215.485.482.485h2.57a.484.484 0 0 0 .482-.485.484.484 0 0 0-.482-.486h-2.57Z"
+                  clip-rule="evenodd"
+                />
+                <path
+                  fill="#fff"
+                  d="M5.184 2.683 6.49 1.72a1.98 1.98 0 0 1 2.353 0l1.312.967a49.074 49.074 0 0 0-1.833-.021H6.875c-.615 0-1.18 0-1.69.016Z"
+                />
+              </svg>
+              <span>Connect wallet</span>
+            </button>
+          )}
         </div>
       </nav>
 

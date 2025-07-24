@@ -53,23 +53,33 @@ function Updaters() {
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean }> {
   constructor(props: { children: React.ReactNode }) {
     super(props);
-    this.state = { hasError: false };
+    this.state = { hasError: false, error: null } as any;
   }
 
   static getDerivedStateFromError(error: any) {
-    return { hasError: true };
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: any, errorInfo: any) {
     console.error('Error:', error);
     console.error('Error Info:', errorInfo);
+    // Optionally, you can send error info to an error reporting service here
   }
 
-  render() {
-    if (this.state.hasError) {
-      return <div>Something went wrong. Please refresh the page.</div>;
-    }
+  handleRefresh = () => {
+    window.location.reload();
+  };
 
+  render() {
+    if ((this.state as any).hasError) {
+      return (
+        <div style={{ padding: '2rem', color: 'red', textAlign: 'center' }}>
+          <h2>Something went wrong.</h2>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>{String((this.state as any).error)}</pre>
+          <button onClick={this.handleRefresh} style={{ marginTop: '1rem' }}>Refresh Page</button>
+        </div>
+      );
+    }
     return this.props.children;
   }
 }

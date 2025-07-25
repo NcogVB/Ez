@@ -5,6 +5,24 @@ export const DEFAULT_TOKENS_LIST = {
     keywords: ['compound', 'defi'],
     timestamp: '2021-05-27T20:37:00.000+00:00',
     tokens: [
+      // Sepolia ETH (native)
+      {
+        chainId: 11155111,
+        address: '0x0000000000000000000000000000000000000000',
+        name: 'Sepolia Ether',
+        symbol: 'ETH',
+        decimals: 18,
+        logoURI: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
+      },
+      // Mainnet ETH (native)
+      {
+        chainId: 1,
+        address: '0x0000000000000000000000000000000000000000',
+        name: 'Ether',
+        symbol: 'ETH',
+        decimals: 18,
+        logoURI: 'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/info/logo.png',
+      },
       {
         chainId: 11155111,
         address: '0x4f08A4682C1871300f42D8686344dbD00CB99B51',

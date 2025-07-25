@@ -1,18 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, CircleQuestionMarkIcon } from 'lucide-react';
+import { CircleQuestionMarkIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useAllTokens, useCurrency } from '../../../hooks/Tokens';
+import { useCurrency } from '../../../hooks/Tokens';
+import CurrencyInputPanel from '../../../components/CurrencyInputPanel';
 import { useSwapState, useSwapActionHandlers, useDerivedSwapInfo } from '../../../state/swap/hooks';
 import { useActiveWeb3React } from '../../../hooks';
 import { maxAmountSpend } from '../../../utils/maxAmountSpend';
 import { Field } from '../../../state/swap/actions';
+
 import { useSwapCallback } from '../../../hooks/useSwapCallback';
-import { computeTradePriceBreakdown } from '../../../utils/prices';
-import { useUserSlippageTolerance } from '../../../state/user/hooks';
+import { computeTradePriceBreakdown, warningSeverity } from '../../../utils/prices';
+import { useUserSlippageTolerance, useExpertModeManager, useUserSingleHopOnly } from '../../../state/user/hooks';
+import { ApprovalState, useApproveCallbackFromTrade } from '../../../hooks/useApproveCallback';
 
 const Converter = () => {
     // Real token and swap logic
-    const allTokens = useAllTokens();
     const { account } = useActiveWeb3React();
     const { independentField, typedValue, recipient } = useSwapState();
     const { onCurrencySelection, onUserInput } = useSwapActionHandlers();
@@ -29,12 +31,11 @@ const Converter = () => {
     const toToken = currencies && Field.OUTPUT in currencies ? currencies[Field.OUTPUT] : undefined;
     const fromBalance = currencyBalances && Field.INPUT in currencyBalances && currencyBalances[Field.INPUT]?.toExact ? currencyBalances[Field.INPUT].toExact() : '0';
     const toBalance = currencyBalances && Field.OUTPUT in currencyBalances && currencyBalances[Field.OUTPUT]?.toExact ? currencyBalances[Field.OUTPUT].toExact() : '0';
-    // Show calculated output value for the opposite field
+    // Show calculated output value for the opposite field (simulate like Swap page)
     let fromAmount = '';
     let toAmount = '';
     if (independentField === Field.INPUT) {
         fromAmount = typedValue;
-        // If trade exists, show the real output amount
         toAmount = trade && trade.outputAmount && typeof trade.outputAmount.toSignificant === 'function' ? trade.outputAmount.toSignificant(8) : '';
     } else {
         toAmount = typedValue;
@@ -42,35 +43,53 @@ const Converter = () => {
     }
     const maxAmountInput = currencyBalances && Field.INPUT in currencyBalances && currencyBalances[Field.INPUT] ? maxAmountSpend(currencyBalances[Field.INPUT]) : undefined;
     const maxAmountOutput = currencyBalances && Field.OUTPUT in currencyBalances && currencyBalances[Field.OUTPUT] ? maxAmountSpend(currencyBalances[Field.OUTPUT]) : undefined;
-    const { callback: swapCallback } = useSwapCallback(trade, allowedSlippage, recipient, 0);
 
-    // Dropdown token lists
-    const tokenList = allTokens ? Object.values(allTokens) : [];
-    const fromTokenList = tokenList.filter(t => !toToken || t.symbol !== toToken?.symbol);
-    const toTokenList = tokenList.filter(t => !fromToken || t.symbol !== fromToken?.symbol);
+    // Approval and swap state
+    const [approval, approveCallback] = useApproveCallbackFromTrade(trade, allowedSlippage);
+    const [approvalSubmitted, setApprovalSubmitted] = useState(false);
+    const [isExpertMode] = useExpertModeManager();
+    const [swapErrorMessage, setSwapErrorMessage] = useState<string | undefined>();
+    const [attemptingTxn, setAttemptingTxn] = useState(false);
+    const [txHash, setTxHash] = useState<string | undefined>();
+    const [showConfirm, setShowConfirm] = useState(false);
+    const [tradeToConfirm, setTradeToConfirm] = useState<typeof trade | undefined>();
+    const [singleHopOnly] = useUserSingleHopOnly();
+    const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(trade, allowedSlippage, recipient, 0);
+    const { priceImpactWithoutFee } = computeTradePriceBreakdown(trade);
+    const priceImpactSeverity = warningSeverity(priceImpactWithoutFee);
 
-    // Token logo helpers
-    const getTokenLogo = (token: any) => token?.logoURI || '/images/stock-1.svg';
+
+    // Token logo helpers (for error/status only)
     const getTokenSymbol = (token: any) => token?.symbol || '';
-    const getTokenName = (token: any) => token?.name || '';
 
-    // Handle token selection
-    const handleTokenSelect = (token: any, isFrom: boolean = true) => {
-        onCurrencySelection(isFrom ? Field.INPUT : Field.OUTPUT, token);
-        if (isFrom) setIsFromDropdownOpen(false);
-        else setIsToDropdownOpen(false);
+
+    // Handle token selection (for CurrencyInputPanel)
+    const handleFromTokenSelect = (currency: any) => {
+        onCurrencySelection(Field.INPUT, currency);
+    };
+    const handleToTokenSelect = (currency: any) => {
+        onCurrencySelection(Field.OUTPUT, currency);
     };
 
-    // Handle amount input
-    const handleAmountChange = (value: string, isFrom: boolean = true) => {
-        onUserInput(isFrom ? Field.INPUT : Field.OUTPUT, value);
+
+    // Handle amount input (for CurrencyInputPanel)
+    // Simulate like Swap: entering in one field updates the other in real time
+    const handleFromAmountChange = (value: string) => {
+        onUserInput(Field.INPUT, value);
+    };
+    const handleToAmountChange = (value: string) => {
+        onUserInput(Field.OUTPUT, value);
     };
 
-    // Handle max amount
-    const handleMaxAmount = (isFrom: boolean = true) => {
-        if (isFrom && maxAmountInput) onUserInput(Field.INPUT, maxAmountInput.toExact());
-        if (!isFrom && maxAmountOutput) onUserInput(Field.OUTPUT, maxAmountOutput.toExact());
+
+    // Handle max amount (for CurrencyInputPanel)
+    const handleMaxFromAmount = () => {
+        if (maxAmountInput) onUserInput(Field.INPUT, maxAmountInput.toExact());
     };
+    const handleMaxToAmount = () => {
+        if (maxAmountOutput) onUserInput(Field.OUTPUT, maxAmountOutput.toExact());
+    };
+
 
     // Swap tokens (switch input/output)
     const handleSwapTokens = () => {
@@ -97,8 +116,49 @@ const Converter = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+
     // Price
     const price = trade && trade.executionPrice ? trade.executionPrice.toSignificant(8) : '-';
+
+    // Button state logic
+    const isValid = !inputError;
+    const bigInput = maxAmountInput && parseFloat(fromAmount) > parseFloat(maxAmountInput.toExact());
+    const noRoute = !trade?.route;
+
+    // Approval flow
+    useEffect(() => {
+        if (approval === ApprovalState.PENDING) {
+            setApprovalSubmitted(true);
+        }
+    }, [approval]);
+
+    // Swap handler
+    const handleSwap = async () => {
+        if (!swapCallback) return;
+        setAttemptingTxn(true);
+        setSwapErrorMessage(undefined);
+        try {
+            const hash = await swapCallback();
+            setTxHash(hash);
+            setAttemptingTxn(false);
+            setShowConfirm(false);
+            setTradeToConfirm(undefined);
+            // Optionally clear input
+        } catch (err) {
+            setSwapErrorMessage(err.message);
+            setAttemptingTxn(false);
+        }
+    };
+
+    // Confirm modal logic (simple inline, not modal)
+    const handleConfirm = () => {
+        if (isExpertMode) {
+            handleSwap();
+        } else {
+            setShowConfirm(true);
+            setTradeToConfirm(trade);
+        }
+    };
 
     return (
         <div className="hero-border mt-[100px] mb-[150px] w-full p-[3.5px] md:rounded-[40px] rounded-[20px]">
@@ -118,93 +178,36 @@ const Converter = () => {
                     </Link>
                 </div>
                 <div className="flex flex-col md:flex-row items-center gap-[25px] md:gap-[51px]">
-                    {/* FROM TOKEN SECTION */}
+                    {/* FROM TOKEN SECTION (CurrencyInputPanel) */}
                     <div className="flex-1 w-full">
-                        <div className="bg-[#FFFFFF66] border border-solid border-[#FFFFFF1A] rounded-[12px] px-[15px] py-[18px]">
-                            <div className="flex items-center justify-between font-normal text-sm leading-[18.86px] text-black mb-3">
-                                <span>
-                                    Availability: {parseFloat(fromBalance).toFixed(3)}
-                                </span>
+                        <CurrencyInputPanel
+                            value={fromAmount}
+                            onUserInput={handleFromAmountChange}
+                            onMax={handleMaxFromAmount}
+                            showMaxButton={true}
+                            currency={fromToken}
+                            onCurrencySelect={handleFromTokenSelect}
+                            otherCurrency={toToken}
+                            id="from-currency"
+                            customBalanceText={account && fromToken ? `Balance: ${fromBalance}` : ''}
+                            label2={''}
+                        />
+                        <div className="mt-4 flex gap-3 percentage-redio-buttons">
+                            {[25, 50, 75, 100].map((percent) => (
                                 <button
-                                    onClick={() => handleMaxAmount(true)}
-                                    className="underline hover:text-[#3DBEA3] cursor-pointer"
+                                    key={percent}
+                                    type="button"
+                                    className={`flex-1 bg-[#FFFFFF66] border border-solid border-[#FFFFFF1A] rounded-md py-[5px] md:py-[11px] text-[16px] md:text-base font-semibold text-[#80888A] md:text-[#1D3B5E] text-center hover:bg-[#3DBEA3] hover:text-white transition-colors`}
+                                    onClick={() => {
+                                        if (maxAmountInput) {
+                                            const value = (parseFloat(maxAmountInput.toExact()) * percent / 100).toString();
+                                            handleFromAmountChange(value);
+                                        }
+                                    }}
                                 >
-                                    Max: {parseFloat(fromBalance).toFixed(3)}
+                                    {percent}%
                                 </button>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <input
-                                    type="number"
-                                    value={fromAmount}
-                                    onChange={(e) => handleAmountChange(e.target.value, true)}
-                                    placeholder="0.000"
-                                    className="text-black font-bold text-[22px] leading-[31.43px] bg-transparent border-none outline-none flex-1 mr-4"
-                                />
-                                <div className="relative min-w-[95px]" ref={fromDropdownRef}>
-                                    <button
-                                        onClick={() => setIsFromDropdownOpen(!isFromDropdownOpen)}
-                                        aria-expanded={isFromDropdownOpen}
-                                        aria-haspopup="listbox"
-                                        className="token-button w-full flex items-center cursor-pointer select-none hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-colors"
-                                        type="button"
-                                    >
-                                        <img
-                                            className="token-img rounded-full shadow-[0px_6px_10px_0px_#00000013] size-[23px] min-w-[23px]"
-                                            alt={getTokenName(fromToken)}
-                                            src={getTokenLogo(fromToken)}
-                                        />
-                                        <span className="token-label text-[#000000] text-[16px] font-normal text-left flex-grow ml-3 mr-8">
-                                            {getTokenSymbol(fromToken)}
-                                        </span>
-                                        <ChevronDown
-                                            className={`token-arrow transition-transform ${isFromDropdownOpen ? 'rotate-180' : ''}`}
-                                        />
-                                    </button>
-                                    {isFromDropdownOpen && (
-                                        <ul
-                                            className="token-list absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg max-h-48 overflow-auto text-[13px] font-normal text-black"
-                                            role="listbox"
-                                            tabIndex={-1}
-                                        >
-                                            {fromTokenList.map((token: any) => (
-                                                <li
-                                                    key={token.symbol}
-                                                    onClick={() => handleTokenSelect(token, true)}
-                                                    className="token-item cursor-pointer select-none relative py-2 pl-3 pr-9 flex items-center hover:bg-gray-100"
-                                                    role="option"
-                                                    tabIndex={0}
-                                                >
-                                                    <img
-                                                        alt={getTokenName(token)}
-                                                        className="w-6 h-6 mr-2"
-                                                        height="24"
-                                                        src={getTokenLogo(token)}
-                                                        width="24"
-                                                    />
-                                                    {getTokenSymbol(token)}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="mt-4 flex gap-3 percentage-redio-buttons">
-                                {[25, 50, 75, 100].map((percent) => (
-                                    <button
-                                        key={percent}
-                                        type="button"
-                                        className={`flex-1 bg-[#FFFFFF66] border border-solid border-[#FFFFFF1A] rounded-md py-[5px] md:py-[11px] text-[16px] md:text-base font-semibold text-[#80888A] md:text-[#1D3B5E] text-center hover:bg-[#3DBEA3] hover:text-white transition-colors`}
-                                        onClick={() => {
-                                            if (maxAmountInput) {
-                                                const value = (parseFloat(maxAmountInput.toExact()) * percent / 100).toString();
-                                                handleAmountChange(value, true);
-                                            }
-                                        }}
-                                    >
-                                        {percent}%
-                                    </button>
-                                ))}
-                            </div>
+                            ))}
                         </div>
                     </div>
                     {/* SWAP BUTTON */}
@@ -212,6 +215,7 @@ const Converter = () => {
                         <button
                             onClick={handleSwapTokens}
                             className="hover:bg-gray-100 p-2 rounded-full transition-colors"
+                            aria-label="Switch tokens"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -226,95 +230,110 @@ const Converter = () => {
                             </svg>
                         </button>
                     </div>
-                    {/* TO TOKEN SECTION */}
+                    {/* TO TOKEN SECTION (CurrencyInputPanel) */}
                     <div className="flex-1 w-full">
-                        <div className="bg-[#FFFFFF66] border border-solid border-[#FFFFFF1A] rounded-[12px] px-[15px] py-[18px]">
-                            <div className="flex items-center justify-between font-normal text-sm leading-[18.86px] text-black mb-3">
-                                <span>
-                                    Availability: {parseFloat(toBalance).toFixed(3)}
-                                </span>
+                        <CurrencyInputPanel
+                            value={toAmount}
+                            onUserInput={handleToAmountChange}
+                            onMax={handleMaxToAmount}
+                            showMaxButton={true}
+                            currency={toToken}
+                            onCurrencySelect={handleToTokenSelect}
+                            otherCurrency={fromToken}
+                            id="to-currency"
+                            customBalanceText={account && toToken ? `Balance: ${toBalance}` : ''}
+                            label2={''}
+                        />
+                        <div className="mt-4 flex gap-3 percentage-redio-buttons">
+                            {[25, 50, 75, 100].map((percent) => (
                                 <button
-                                    onClick={() => handleMaxAmount(false)}
-                                    className="underline hover:text-[#3DBEA3] cursor-pointer"
+                                    key={percent}
+                                    type="button"
+                                    className={`flex-1 bg-[#FFFFFF66] border border-solid border-[#FFFFFF1A] rounded-md py-[5px] md:py-[11px] text-[16px] md:text-base font-semibold text-[#80888A] md:text-[#1D3B5E] text-center hover:bg-[#3DBEA3] hover:text-white transition-colors`}
+                                    onClick={() => {
+                                        if (maxAmountOutput) {
+                                            const value = (parseFloat(maxAmountOutput.toExact()) * percent / 100).toString();
+                                            handleToAmountChange(value);
+                                        }
+                                    }}
                                 >
-                                    Max: {parseFloat(toBalance).toFixed(3)}
+                                    {percent}%
                                 </button>
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <input
-                                    type="number"
-                                    value={toAmount}
-                                    onChange={(e) => handleAmountChange(e.target.value, false)}
-                                    placeholder="0.000"
-                                    className="text-black font-bold text-[22px] leading-[31.43px] bg-transparent border-none outline-none flex-1 mr-4"
-                                />
-                                <div className="relative min-w-[95px]" ref={toDropdownRef}>
-                                    <button
-                                        onClick={() => setIsToDropdownOpen(!isToDropdownOpen)}
-                                        aria-expanded={isToDropdownOpen}
-                                        aria-haspopup="listbox"
-                                        className="token-button w-full flex items-center cursor-pointer select-none hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-colors"
-                                        type="button"
-                                    >
-                                        <img
-                                            className="token-img rounded-full shadow-[0px_6px_10px_0px_#00000013] size-[23px] min-w-[23px]"
-                                            alt={getTokenName(toToken)}
-                                            src={getTokenLogo(toToken)}
-                                        />
-                                        <span className="token-label text-[#000000] text-[16px] font-normal text-left flex-grow ml-3 mr-8">
-                                            {getTokenSymbol(toToken)}
-                                        </span>
-                                        <ChevronDown
-                                            className={`token-arrow transition-transform ${isToDropdownOpen ? 'rotate-180' : ''}`}
-                                        />
-                                    </button>
-                                    {isToDropdownOpen && (
-                                        <ul
-                                            className="token-list absolute z-10 mt-1 w-full bg-white rounded-md shadow-lg max-h-48 overflow-auto text-[13px] font-normal text-black"
-                                            role="listbox"
-                                            tabIndex={-1}
-                                        >
-                                            {toTokenList.map((token: any) => (
-                                                <li
-                                                    key={token.symbol}
-                                                    onClick={() => handleTokenSelect(token, false)}
-                                                    className="token-item cursor-pointer select-none relative py-2 pl-3 pr-9 flex items-center hover:bg-gray-100"
-                                                    role="option"
-                                                    tabIndex={0}
-                                                >
-                                                    <img
-                                                        alt={getTokenName(token)}
-                                                        className="w-6 h-6 mr-2"
-                                                        height="24"
-                                                        src={getTokenLogo(token)}
-                                                        width="24"
-                                                    />
-                                                    {getTokenSymbol(token)}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="mt-4 flex gap-3 percentage-redio-buttons">
-                                {[25, 50, 75, 100].map((percent) => (
-                                    <button
-                                        key={percent}
-                                        type="button"
-                                        className={`flex-1 bg-[#FFFFFF66] border border-solid border-[#FFFFFF1A] rounded-md py-[5px] md:py-[11px] text-[16px] md:text-base font-semibold text-[#80888A] md:text-[#1D3B5E] text-center hover:bg-[#3DBEA3] hover:text-white transition-colors`}
-                                        onClick={() => {
-                                            if (maxAmountOutput) {
-                                                const value = (parseFloat(maxAmountOutput.toExact()) * percent / 100).toString();
-                                                handleAmountChange(value, false);
-                                            }
-                                        }}
-                                    >
-                                        {percent}%
-                                    </button>
-                                ))}
-                            </div>
+                            ))}
                         </div>
                     </div>
+                </div>
+                {/* SWAP/ACTION BUTTONS & STATUS */}
+                <div className="mt-8 flex flex-col items-center">
+                    {showConfirm && tradeToConfirm ? (
+                        <div className="w-full mb-4 p-4 bg-yellow-100 border border-yellow-300 rounded text-yellow-900">
+                            <div className="font-bold mb-2">Confirm Swap</div>
+                            <div>Are you sure you want to swap?</div>
+                            <div className="mt-2 flex gap-2">
+                                <button
+                                    className="bg-green-500 text-white px-4 py-2 rounded"
+                                    onClick={handleSwap}
+                                    disabled={attemptingTxn}
+                                >
+                                    {attemptingTxn ? 'Swapping...' : 'Confirm'}
+                                </button>
+                                <button
+                                    className="bg-gray-300 px-4 py-2 rounded"
+                                    onClick={() => setShowConfirm(false)}
+                                    disabled={attemptingTxn}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                            {swapErrorMessage && <div className="text-red-600 mt-2">{swapErrorMessage}</div>}
+                        </div>
+                    ) : null}
+                    {/* Approval and Swap Buttons */}
+                    {!account ? (
+                        <button className="bg-[#3DBEA3] text-white px-8 py-3 rounded-lg font-bold" disabled>
+                            Connect Wallet
+                        </button>
+                    ) : noRoute && fromAmount && toAmount ? (
+                        <div className="text-red-600 font-semibold">Insufficient liquidity for this trade.</div>
+                    ) : (approval === ApprovalState.NOT_APPROVED || approval === ApprovalState.PENDING || (approvalSubmitted && approval === ApprovalState.APPROVED)) && !(priceImpactSeverity > 3 && !isExpertMode) ? (
+                        <div className="flex gap-4 w-full justify-center">
+                            <button
+                                className={`px-8 py-3 rounded-lg font-bold ${approval === ApprovalState.PENDING ? 'bg-gray-400 text-white' : 'bg-[#3DBEA3] text-white'}`}
+                                onClick={approveCallback}
+                                disabled={approval !== ApprovalState.NOT_APPROVED || (approvalSubmitted && approval !== ApprovalState.NOT_APPROVED)}
+                            >
+                                {approval === ApprovalState.PENDING ? 'Approving...' : approvalSubmitted && approval === ApprovalState.APPROVED ? 'Approved' : `Approve ${getTokenSymbol(fromToken)}`}
+                            </button>
+                            <button
+                                className="px-8 py-3 rounded-lg font-bold bg-[#3DBEA3] text-white"
+                                onClick={handleConfirm}
+                                disabled={!isValid || approval !== ApprovalState.APPROVED || (priceImpactSeverity > 3 && !isExpertMode) || bigInput}
+                            >
+                                {priceImpactSeverity > 3 && !isExpertMode ? 'Price Impact High' : 'Swap'}
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            className="px-8 py-3 rounded-lg font-bold bg-[#3DBEA3] text-white"
+                            onClick={handleConfirm}
+                            disabled={!isValid || (priceImpactSeverity > 3 && !isExpertMode) || !!swapCallbackError || bigInput}
+                        >
+                            {bigInput
+                                ? `Insufficient ${getTokenSymbol(fromToken) || 'input'} balance`
+                                : inputError
+                                ? inputError
+                                : priceImpactSeverity > 3 && !isExpertMode
+                                ? 'Price Impact Too High'
+                                : 'Exchange'}
+                        </button>
+                    )}
+                    {/* Error/Status Feedback */}
+                    {swapErrorMessage && !showConfirm && (
+                        <div className="text-red-600 mt-2">{swapErrorMessage}</div>
+                    )}
+                    {txHash && (
+                        <div className="text-green-600 mt-2">Swap successful! Tx: {txHash}</div>
+                    )}
                 </div>
                 {/* PRICE AND SLIPPAGE INFO */}
                 <div className="mt-[36px] bg-[#FFFFFF66] border border-solid border-[#FFFFFF1A] rounded-[12px] px-[15px] py-[18px] flex items-center justify-between ">

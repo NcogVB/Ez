@@ -112,6 +112,7 @@ export default function CurrencyInputPanel({
   label2,
   isFirst = false,
   isSecond,
+  customBalanceText,
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -153,6 +154,12 @@ export default function CurrencyInputPanel({
                 </>
               )}
             </InputRow>
+            {/* Show balance just below the input, like Swap page */}
+            {customBalanceText && (
+              <div style={{ marginTop: 4, marginLeft: 2, fontSize: 12, color: '#3DBEA3', fontWeight: 600 }}>
+                {customBalanceText}
+              </div>
+            )}
             <DropSelect className="ExBox-right">
               <div
                 className="selectBtn"

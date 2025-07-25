@@ -113,8 +113,8 @@ function CurrencyRow({
           <div className="tlLeft">
             <CurrencyLogo size="30px" currency={currency} />
             <p>
-              {currency.symbol}
-              <span>{currency.name}</span>
+              {currency && typeof currency.symbol === 'string' ? currency.symbol : 'UNKNOWN'}
+              <span>{currency && typeof currency.name === 'string' ? currency.name : ''}</span>
             </p>
             <TEXT.default ml="0px" fontSize={12} fontWeight={500} color="textSecondary" marginLeft={'20px'}>
               {/* 8E8EA9 */}

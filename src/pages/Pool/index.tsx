@@ -84,24 +84,7 @@ const Pool = () => {
             seamlessly exchange one type of token for another with
             maximum efficiency.
           </p>
-          {/* Connect Wallet Button */}
-          {account === null ? (
-            <button
-              className="flex items-center space-x-2 bg-[#3DBEA3] text-white font-medium text-base leading-[17.6px] px-[22px] py-4 rounded-full"
-              onClick={toggleWalletModal}
-            >
-              <Wallet />
-              <span>{t('connect wallet')}</span>
-            </button>
-          ) : (
-            <button
-              className="flex items-center space-x-2 bg-[#3DBEA3] text-white font-medium text-base leading-[17.6px] px-[22px] py-4 rounded-full"
-              onClick={disconnect}
-            >
-              <Wallet />
-              <span>Disconnect</span>
-            </button>
-          )}
+          
           <div className="hero-border mt-[56px] w-full p-[3.5px] md:rounded-[40px] rounded-[20px] max-w-[690px]">
             <div className="bg-[linear-gradient(105.87deg,_rgba(0,0,0,0.2)_3.04%,_rgba(0,0,0,0)_96.05%)] relative backdrop-blur-[80px] w-full md:rounded-[40px] rounded-[20px] px-[15px] md:px-[50px] py-[20px] md:py-[60px]">
               <div className="relative z-10 border bg-[#FFFFFF66] inline-flex px-2 py-1.5 rounded-[14px] border-solid border-[#FFFFFF1A] mb-6 gap-2">

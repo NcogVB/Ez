@@ -51,8 +51,8 @@ const Navbar: React.FC = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<string>('Eng');
 
   const navItems: NavItem[] = [
-    { name: 'Exchange', href: 'swap2', path: '/swap2' },
-    { name: 'Pool', href: 'pool2', path: '/pool2' },
+    { name: 'Exchange', href: 'swap', path: '/swap' },
+    { name: 'Pool', href: 'pool', path: '/pool' },
     { name: 'Bridge', href: 'bridge2', path: '/bridge2' },
     { name: 'Limit Order', href: 'limit2', path: '/limit2' },
   ];

@@ -54,6 +54,9 @@ import Swapimage from '../../assets/images/swap.png';
 import Gs from 'theme/globalStyles';
 import Media from 'theme/media-breackpoint';
 import { getContractData, nativeSymbol, WETH } from '../../constants/index';
+import AskExpertsSection from '../../components/newHome/AskExpertsSection';
+import EarnPassiveIncomeSection from '../../components/newHome/EarnPassiveIncomeSection';
+import { ArrowRight } from 'lucide-react';
 
 const Addliquidity = styled.div``;
 const ALTop = styled.div`
@@ -397,337 +400,274 @@ export default function AddLiquidity({
   const isLocked = pairsList && pairsList?.pairs && pair ? isPairLocked(pairsList.pairs, pair) : false;
 
   return (
-    <>
-      <>
-        <Gs.Container>
-          {/* <SwapHeader /> */}
-          <ExchangeBx>
-            <ExchangeTop>
-              <TabMain>
-                <NavLink to={'/swap'}>Exchange</NavLink>
-                <NavLink to={'/pool'} className="active">
-                  {' '}
-                  Pool
-                </NavLink>
-              </TabMain>
-            </ExchangeTop>
+    <div>
+      {/* Hero Section */}
+      <div className="hero-section">
+        <div className="flex-grow flex flex-col items-center px-4 pt-[40px] md:pt-[88px] container mx-auto w-full">
+          <button
+            aria-label="Join our community"
+            className="flex items-center gap-4 text-black font-normal text-[14.29px] leading-[15.84px] bg-white border border-[#eaeaea] rounded-full px-[15px] py-2 mb-5 transition"
+          >
+            <span>⚡</span>
+            <span>Join our community</span>
+            <ArrowRight />
+          </button>
+          <h1 className="font-semibold text-[40px] leading-[48px] md:text-[80px] md:leading-[88px] text-center align-middle capitalize mb-3 text-[#3DBEA3] max-w-[720px] mx-auto">
+            <span className="text-[#2A8576]"> Tokens </span> Exchange with DEX.
+          </h1>
+          <p className="text-center font-normal md:text-[17.72px] md:leading-7 text-[#767676] max-w-[700px] mb-6">
+            At our cryptocurrency token exchange platform, we offer an easy-to-use token swap service that allows you to
+            seamlessly exchange one type of token for another with maximum efficiency.
+          </p>
 
-            <>
-              <Addliquidity>
-                <ALTop>
-                  <h3>Add Liquidity</h3>
-                  <p>Add Liquidity to receive LP Tokens</p>
-                </ALTop>
-                {/* <LiquidityIconWrapper>
-                  <img src={CircleArrowIcon} alt="refresh" />
-                </LiquidityIconWrapper> */}
-                <SuccessTransactionModal
-                  hash={txHash !== '' ? txHash : undefined}
-                  isOpen={isOpenSuccessModal}
-                  onDismiss={toggleSuccess}
-                />
-                <TransactionConfirmationModal
-                  isOpen={showConfirm}
-                  onDismiss={handleDismissConfirmation}
-                  attemptingTxn={attemptingTxn}
-                  hash={txHash}
-                  isAddLiquidityPage={true}
-                  pair={pair}
-                  v2pair={v2Pair}
-                  content={() => (
-                    <ConfirmationModalContent
-                      title={noLiquidity ? 'You are creating a pool' : 'You will receive'}
-                      onDismiss={handleDismissConfirmation}
-                      topContent={modalHeader}
-                      bottomContent={modalBottom}
-                    />
-                  )}
-                  pendingText={pendingText}
-                  pendingContent={pendingContent}
-                />
-                <TransactionErrorModal isOpen={isErrorModalOpen} onDismiss={toggleErrorModal} />
-                <ApproveTokensModal
-                  isOpen={isApproveTokensModalOpen}
-                  onDismiss={toggleApproveTokensModal}
-                  pendingText={pendingText}
-                />
+          <div className="flex items-center justify-center py-8">
+            <div className="w-full flex justify-center px-2">
+              <div
+                className="hero-border w-[80vw] max-w-4xl p-[3.5px] rounded-[20px]"
+                style={{
+                  background: `radial-gradient(98% 49.86% at 100.03% 100%, #33a36d 0%, rgba(51, 163, 109, 0.05) 100%), \
+                        radial-gradient(24.21% 39.21% at 0% 0%, rgba(255, 255, 255, 0.81) 0%, rgba(255, 255, 255, 0.19) 100%), \
+                        radial-gradient(21.19% 40.1% at 100.03% 0%, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 100%)`,
+                }}
+              >
+                <div className="bg-[linear-gradient(105.87deg,rgba(0,0,0,0.3)_3.04%,rgba(0,0,0,0.1)_96.05%)] relative backdrop-blur-[80px] w-full rounded-[20px] px-4 py-6">
+                  <div className="relative z-10 border bg-[#FFFFFF66] inline-flex px-2 py-1.5 rounded-[14px] border-solid border-[#FFFFFF1A] gap-2 mb-6">
+                    <button
+                      onClick={() => history.push('/swap')}
+                      className={`rounded-[8px] font-normal text-sm leading-[100%] px-[22px] py-[13px] transition-colors ${
+                        history.location.pathname === '/swap' ? 'bg-white text-[#2A8576] font-bold' : 'text-black'
+                      }`}
+                    >
+                      Exchange
+                    </button>
+                    <button
+                      onClick={() => history.push('/pool')}
+                      className={`rounded-[8px] font-normal text-sm leading-[100%] px-[22px] py-[13px] transition-colors ${
+                        history.location.pathname === '/pool' ? 'bg-white text-[#2A8576] font-bold' : 'text-black'
+                      }`}
+                    >
+                      Pool
+                    </button>
+                  </div>
 
-                <>
-                  <AmountBox>
-                    <CurrencyInputPanel
-                      label={'From'}
-                      label2={
-                        maxAmounts[Field.CURRENCY_A]?.toExact()
-                          ? `Availability: ${parseFloat(maxAmounts[Field.CURRENCY_A]?.toExact() || '0').toFixed(4)}`
-                          : ''
-                      }
-                      value={formattedAmounts[Field.CURRENCY_A]}
-                      onUserInput={onFieldAInput}
-                      onMax={() => {
-                        onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '');
-                      }}
-                      onCurrencySelect={handleCurrencyASelect}
-                      showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
-                      currency={currencies[Field.CURRENCY_A]}
-                      showAvailableInPool={false}
-                      id="add-liquidity-input-tokena"
-                      showCommonBases
-                    />
-                    <AmountTabs onChange={handleMaxA} />
-                  </AmountBox>
+                  <h2 className="mb-1 font-bold text-2xl leading-[100%] text-white">Add Liquidity</h2>
+                  <p className="text-white font-normal text-base leading-5 mb-6">Add Liquidity to receive LP Tokens</p>
 
-                  {/* {!!maxAmounts[Field.CURRENCY_A]?.toExact() && (
-                    <TEXT.secondary fontWeight={600} fontSize={12}>
-                      Availability: {maxAmounts[Field.CURRENCY_A]?.toExact() ?? '0'}
-                    </TEXT.secondary>
-                  )} */}
-                  <SwapSwitch onClick={handleASwitchCurrencies}>
-                    <div style={{ cursor: 'pointer' }} className="switch">
-                      <img src={Swapimage} alt="arrow" />
-                    </div>
-                  </SwapSwitch>
-                  <AmountBox>
-                    <CurrencyInputPanel
-                      label={'To'}
-                      label2={
-                        maxAmounts[Field.CURRENCY_B]?.toExact()
-                          ? `Availability: ${parseFloat(maxAmounts[Field.CURRENCY_B]?.toExact() || '0').toFixed(4)}`
-                          : ''
-                      }
-                      value={formattedAmounts[Field.CURRENCY_B]}
-                      onUserInput={onFieldBInput}
-                      onCurrencySelect={handleCurrencyBSelect}
-                      onMax={() => {
-                        onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '');
-                      }}
-                      showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
-                      currency={currencies[Field.CURRENCY_B]}
-                      showAvailableInPool={false}
-                      id="add-liquidity-input-tokenb"
-                      showCommonBases
-                    />
-                    <AmountTabs onChange={handleMaxB} />
-                  </AmountBox>
-                  {/* {!!maxAmounts[Field.CURRENCY_B]?.toExact() && (
-                    <TEXT.secondary fontWeight={600} fontSize={12}>
-                      Availability: {maxAmounts[Field.CURRENCY_B]?.toExact() ?? '0'}
-                    </TEXT.secondary>
-                  )} */}
-                  {currencies[Field.CURRENCY_A] && currencies[Field.CURRENCY_B] && pairState !== PairState.INVALID && (
-                    <>
-                      <InfoSec>
-                        <h4>Prices and pool share:</h4>
+                  {/* Show available balances for selected tokens above each input */}
 
-                        <PoolPriceBar
-                          currencies={currencies}
-                          poolTokenPercentage={poolTokenPercentage}
-                          noLiquidity={noLiquidity}
-                          price={price}
+                  {/* Horizontal input cards with swap icon in center */}
+                  <div className="flex flex-row items-start justify-between gap-4 mb-4 w-full">
+                    {/* First input card */}
+                    <div className="flex-1 bg-[#FFFFFF66] border border-[#FFFFFF66] rounded-[12px] px-4 py-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <input
+                          type="number"
+                          className="bg-transparent outline-none font-bold text-2xl w-1/2"
+                          value={formattedAmounts[Field.CURRENCY_A]}
+                          onChange={(e) => onFieldAInput(e.target.value)}
+                          placeholder="0.000"
                         />
-                      </InfoSec>
-                    </>
-                  )}
+                        <div className="flex items-center gap-2 bg-[#FFFFFF66] rounded px-2 py-1">
+                          {/* Optionally add token icon here if available */}
+                          
+                          <select
+                            className="font-semibold text-sm text-[#767676] bg-transparent outline-none"
+                            value={
+                              'address' in (currencies[Field.CURRENCY_A] || {})
+                                ? (currencies[Field.CURRENCY_A] as any).address
+                                : currencies[Field.CURRENCY_A]?.symbol || ''
+                            }
+                            onChange={(e) => {
+                              const selected = Object.values(currencies).find(
+                                (t: any) =>
+                                  t &&
+                                  (('address' in t && t.address === e.target.value) ||
+                                    (!('address' in t) && t.symbol === e.target.value))
+                              );
+                              if (selected) handleCurrencyASelect(selected);
+                            }}
+                          >
+                            {Object.values(currencies).map(
+                              (t: any) =>
+                                t && (
+                                  <option key={t.address} value={t.address}>
+                                    {t.symbol}
+                                  </option>
+                                )
+                            )}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="text-xs text-[#767676] mb-2">
+                        Balance: {currencyBalances[Field.CURRENCY_A]?.toSignificant(6) ?? '0.0000'}
+                      </div>
+                      <div className="flex justify-between mt-2">
+                        {[25, 50, 75, 100].map((percent) => (
+                          <button
+                            key={percent}
+                            className="text-[#767676] font-semibold text-xs px-2 py-1 rounded hover:bg-[#e0f7f4]"
+                            onClick={() =>
+                              onFieldAInput(
+                                (
+                                  (parseFloat(currencyBalances[Field.CURRENCY_A]?.toExact() || '0') * percent) /
+                                  100
+                                ).toString()
+                              )
+                            }
+                          >
+                            {percent}%
+                          </button>
+                        ))}
+                      </div>
+                    </div>
 
-                  {!account ? (
-                    <ButtonPrimary onClick={toggleWalletModal}>Connect Wallet</ButtonPrimary>
-                  ) : isLocked ? (
-                    <GreyCardSecondaryLight style={{ textAlign: 'center' }}>
-                      <TYPE.main>Pair locked</TYPE.main>
-                    </GreyCardSecondaryLight>
-                  ) : (
-                    <AutoColumn gap={'md'}>
-                      {(approvalA === ApprovalState.NOT_APPROVED ||
-                        approvalA === ApprovalState.PENDING ||
-                        approvalB === ApprovalState.NOT_APPROVED ||
-                        approvalB === ApprovalState.PENDING) &&
-                        isValid && (
-                          <RowBetween>
-                            {approvalA !== ApprovalState.APPROVED && (
-                              <ButtonPrimarySmallerText
-                                onClick={approveACallback}
-                                disabled={approvalA === ApprovalState.PENDING}
-                                width={approvalB !== ApprovalState.APPROVED ? '48%' : '100%'}
-                              >
-                                {approvalA === ApprovalState.PENDING ? (
-                                  <Dots>Approving {currencies[Field.CURRENCY_A]?.symbol}</Dots>
-                                ) : (
-                                  'Approve ' + currencies[Field.CURRENCY_A]?.symbol
-                                )}
-                              </ButtonPrimarySmallerText>
-                            )}
-                            {approvalB !== ApprovalState.APPROVED && (
-                              <ButtonPrimarySmallerText
-                                onClick={approveBCallback}
-                                disabled={approvalB === ApprovalState.PENDING}
-                                width={approvalA !== ApprovalState.APPROVED ? '48%' : '100%'}
-                              >
-                                {approvalB === ApprovalState.PENDING ? (
-                                  <Dots>Approving {currencies[Field.CURRENCY_B]?.symbol}</Dots>
-                                ) : (
-                                  'Approve ' + currencies[Field.CURRENCY_B]?.symbol
-                                )}
-                              </ButtonPrimarySmallerText>
-                            )}
-                          </RowBetween>
-                        )}
-                      <ButtonError
-                        onClick={() => {
-                          expertMode ? onAdd() : setShowConfirm(true);
-                        }}
-                        disabled={
-                          !isValid || approvalA !== ApprovalState.APPROVED || approvalB !== ApprovalState.APPROVED
-                        }
-                        error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
+                    {/* Swap icon */}
+                    <div className="flex flex-col items-center justify-center h-full pt-8">
+                      <button
+                        className="bg-[#FFFFFF66] border border-[#E0E0E0] rounded-full p-2 shadow hover:bg-[#e0f7f4] transition-colors"
+                        style={{ marginBottom: '0.5rem' }}
+                        title="Swap tokens"
+                        onClick={handleASwitchCurrencies}
                       >
-                        <Text fontSize={20} fontWeight={500}>
-                          {error ?? 'Supply'}
-                        </Text>
-                      </ButtonError>
-                    </AutoColumn>
-                  )}
-                </>
-              </Addliquidity>
-            </>
+                        <svg width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M8 14h12M16 10l4 4-4 4"
+                            stroke="#3DBEA3"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </button>
+                    </div>
 
-            {pair ? (
-              <AutoColumn style={{ width: '100%', maxWidth: '388px', marginTop: '24px' }}>
-                <MinimalPositionCard showUnwrapped={oneCurrencyIsWETH} pair={pair} />
-              </AutoColumn>
-            ) : null}
-          </ExchangeBx>
-        </Gs.Container>
-      </>
-    </>
+                    {/* Second input card */}
+                    <div className="flex-1 bg-[#FFFFFF66] border border-[#E0E0E0] rounded-[12px] px-4 py-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <input
+                          type="number"
+                          className="bg-transparent outline-none font-bold text-2xl w-1/2"
+                          value={formattedAmounts[Field.CURRENCY_B]}
+                          onChange={(e) => onFieldBInput(e.target.value)}
+                          placeholder="0.000"
+                        />
+                        <div className="flex items-center gap-2 bg-[#FFFFFF66] rounded px-2 py-1">
+                          {/* Optionally add token icon here if available */}
+                          <span className="font-semibold text-sm">{currencies[Field.CURRENCY_B]?.symbol}</span>
+                          <select
+                            className="font-semibold text-sm text-[#767676] bg-transparent outline-none"
+                            value={
+                              'address' in (currencies[Field.CURRENCY_B] || {})
+                                ? (currencies[Field.CURRENCY_B] as any).address
+                                : currencies[Field.CURRENCY_B]?.symbol || ''
+                            }
+                            onChange={(e) => {
+                              const selected = Object.values(currencies).find(
+                                (t: any) =>
+                                  t &&
+                                  (('address' in t && t.address === e.target.value) ||
+                                    (!('address' in t) && t.symbol === e.target.value))
+                              );
+                              if (selected) handleCurrencyBSelect(selected);
+                            }}
+                          >
+                            {Object.values(currencies).map(
+                              (t: any) =>
+                                t && (
+                                  <option key={t.address} value={t.address}>
+                                    {t.symbol}
+                                  </option>
+                                )
+                            )}
+                          </select>
+                        </div>
+                        <span className="ml-2 text-xs text-[#3DBEA3] font-bold cursor-pointer" onClick={handleMaxB}>
+                          MAX
+                        </span>
+                      </div>
+                      <div className="text-xs text-[#767676] mb-2">
+                        Balance: {currencyBalances[Field.CURRENCY_B]?.toSignificant(6) ?? '0.0000'}
+                      </div>
+                      <div className="flex justify-between mt-2">
+                        {[25, 50, 75, 100].map((percent) => (
+                          <button
+                            key={percent}
+                            className="text-[#767676] font-semibold text-xs px-2 py-1 rounded hover:bg-[#e0f7f4]"
+                            onClick={() =>
+                              onFieldBInput(
+                                (
+                                  (parseFloat(currencyBalances[Field.CURRENCY_B]?.toExact() || '0') * percent) /
+                                  100
+                                ).toString()
+                              )
+                            }
+                          >
+                            {percent}%
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Prices and pool share card */}
+                  <div className="bg-[#FFFFFF66] border border-[#E0E0E0] rounded-[12px] px-4 py-4 mb-4">
+                    <p className="font-bold text-sm mb-2">Prices and pool share:</p>
+                    <PoolPriceBar
+                      currencies={currencies}
+                      poolTokenPercentage={poolTokenPercentage}
+                      noLiquidity={noLiquidity}
+                      price={price}
+                    />
+                  </div>
+
+                  {/* Enter an Amount button (disabled) */}
+                  <button
+                    className="w-full bg-[#3DBEA3] text-[#767676] font-semibold text-lg rounded-[8px] py-3 mb-4 cursor-not-allowed"
+                    disabled
+                  >
+                    Enter an Amount
+                  </button>
+
+                  {/* Modals and logic components (hidden in new UI, but logic should be preserved) */}
+                  <SuccessTransactionModal
+                    hash={txHash !== '' ? txHash : undefined}
+                    isOpen={isOpenSuccessModal}
+                    onDismiss={toggleSuccess}
+                  />
+                  <TransactionConfirmationModal
+                    isOpen={showConfirm}
+                    onDismiss={handleDismissConfirmation}
+                    attemptingTxn={attemptingTxn}
+                    hash={txHash}
+                    isAddLiquidityPage={true}
+                    pair={pair}
+                    v2pair={v2Pair}
+                    content={() => (
+                      <ConfirmationModalContent
+                        title={noLiquidity ? 'You are creating a pool' : 'You will receive'}
+                        onDismiss={handleDismissConfirmation}
+                        topContent={modalHeader}
+                        bottomContent={modalBottom}
+                      />
+                    )}
+                    pendingText={pendingText}
+                    pendingContent={pendingContent}
+                  />
+                  <TransactionErrorModal isOpen={isErrorModalOpen} onDismiss={toggleErrorModal} />
+                  <ApproveTokensModal
+                    isOpen={isApproveTokensModalOpen}
+                    onDismiss={toggleApproveTokensModal}
+                    pendingText={pendingText}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <AskExpertsSection />
+      <EarnPassiveIncomeSection />
+    </div>
   );
 }
 
-const ExchangeBx = styled.section`
-  border: 1px solid #fff;
-  border-radius: 30px;
-  box-shadow: 4px 0px 6px 2px rgba(0, 0, 0, 0.04);
-  width: 440px;
-  background: rgba(255, 255, 255, 0.4);
-  margin: 0px auto;
-  margin-bottom: 50px;
-  padding: 26px 30px;
-  margin-top: 50px;
-  max-width: 100%;
-  ${Media.xs} {
-    padding: 18px 18px;
-    border-radius: 20px;
-    height: auto;
-  }
-`;
-
-const SwapSwitch = styled.div`
-  display: block;
-  text-align: center;
-  height: 0;
-  a {
-    width: 60px;
-    height: 60px;
-    background: var(--primary);
-    border-radius: 100%;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease-in-out 0s;
-    cursor: pointer;
-    z-index: 1;
-    position: relative;
-    top: -48px;
-    img {
-      filter: brightness(100);
-    }
-    &:hover {
-      transform: rotate(180deg);
-      box-shadow: 0 0 0 5px rgba(27, 193, 154, 0.2);
-    }
-  }
-`;
-
-// Top most part for the box
-const ExchangeTop = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 19px;
-  .rightBtns {
-    width: 30px;
-    height: 30px;
-    background: #fff;
-    border-radius: 3px;
-    margin-left: 9px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    img {
-      width: 15px;
-      height: 15px;
-      object-fit: contain;
-      transition: all 0.3s ease-in-out;
-    }
-    &:hover {
-      background: var(--txtColor);
-      img {
-        filter: brightness(100);
-      }
-    }
-  }
-`;
-
-const AmountBox = styled.div<{ hideInput?: boolean; isHomePage?: boolean }>`
-  background: #fff;
-  border-radius: 10px;
-  width: 100%;
-  padding: 20px 19px 32px;
-  margin: 0 0 28px 0;
-`;
-
-const TabMain = styled.div`
-  border-radius: 10px;
-  background: var(--bgLight2);
-  width: 221px;
-  height: 50px;
-  display: flex;
-  padding: 5px;
-  margin-right: auto;
-  a {
-    width: 50%;
-    font-weight: 500;
-    border-radius: 10px;
-    text-align: center;
-    padding: 9px 0;
-    &.active {
-      background: #fff;
-      box-shadow: 0px 0px 6px rgba(27, 193, 154, 0.07);
-    }
-  }
-`;
-
-const InfoSec = styled.div`
-  background: #fff;
-  border-radius: 10px;
-  width: 100%;
-  padding: 15px 19px 5px;
-  margin: -10px 0 21px 0;
-  p {
-    display: flex;
-    align-items: center;
-    color: var(--txtLight);
-    margin: 0 0 11px 0;
-    a {
-      vertical-align: top;
-      display: inline-block;
-      margin: 5px 0 0 8px;
-    }
-    span {
-      margin-left: auto;
-    }
-  }
-  h4 {
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--txtLight);
-    margin: 0 0 16px;
-  }
-`;

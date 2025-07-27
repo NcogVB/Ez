@@ -39,7 +39,12 @@ export function useETHBalances(uncheckedAddresses?: (string | undefined)[]): {
         // Defensive: Only create CurrencyAmount if value is defined and not null
         if (value !== undefined && value !== null) {
           try {
-            memo[address] = CurrencyAmount.ether(JSBI.BigInt(value.toString()));
+            // Defensive: Only create CurrencyAmount if ETHER is defined and has decimals
+            if (typeof ETHER?.decimals === 'number') {
+              memo[address] = CurrencyAmount.ether(JSBI.BigInt(value.toString()));
+            } else {
+              console.warn('ETHER object is not properly defined, skipping CurrencyAmount for address', address);
+            }
           } catch (err) {
             console.warn('Failed to create CurrencyAmount for address', address, err);
           }

@@ -98,29 +98,27 @@ export default function App() {
               <Switch>
                 <Route exact strict path="/" component={Home} />
                 {/* <Route exact strict path="/privacy" component={PrivacyPolicy} /> */}
-                <div>
-                  <Route path="/service" component={ServiceAgreement} />
-                  <Route path="/faq" component={Faq} />
-                  <Route path="/swap" component={Swap} />
-                  <Route path="/pool2" component={Pool2} />
-                  <Route path="/swap2" component={Swap2} />
-                  <Route path="/limit2" component={Limit2} />
-                  <Route path="/claim" component={OpenClaimAddressModalAndRedirectToSwap} />
-                  <Route path="/pool" component={Pool} />
-                  <Route path="/pools" component={Pools} />
-                  <Route path="/pools:list" component={Pools} />
-                  <Route path="/bridge2" component={Bridge} />
-                  <Route path="/create" component={RedirectToAddLiquidity} />
-                  <Route path="/add" component={AddLiquidity} />
-                  <Route path="/add/:currencyIdA" component={RedirectOldAddLiquidityPathStructure} />
-                  <Route path="/add/:currencyIdA/:currencyIdB" component={RedirectDuplicateTokenIds} />
-                  <Route path="/create" component={AddLiquidity} />
-                  <Route path="/create/:currencyIdA" component={RedirectOldAddLiquidityPathStructure} />
-                  <Route path="/create/:currencyIdA/:currencyIdB" component={RedirectDuplicateTokenIds} />
-                  <Route strict path="/remove/:tokens" component={RedirectOldRemoveLiquidityPathStructure} />
-                  <Route strict path="/remove/:currencyIdA/:currencyIdB" component={RemoveLiquidity} />
-                  {/* <Route component={RedirectPathToSwapOnly} /> */}
-                </div>
+                <Route path="/service" component={ServiceAgreement} />
+                <Route path="/faq" component={Faq} />
+                <Route path="/swap" component={Swap} />
+                <Route path="/pool2" component={Pool2} />
+                <Route path="/swap2" component={Swap2} />
+                <Route path="/limit2" component={Limit2} />
+                <Route path="/claim" component={OpenClaimAddressModalAndRedirectToSwap} />
+                <Route path="/pool" component={Pool} />
+                <Route path="/pools" component={Pools} />
+                <Route path="/pools:list" component={Pools} />
+                <Route path="/bridge2" component={Bridge} />
+                <Route path="/create" component={RedirectToAddLiquidity} />
+                <Route path="/add" component={AddLiquidity} />
+                <Route path="/add/:currencyIdA" component={RedirectOldAddLiquidityPathStructure} />
+                <Route path="/add/:currencyIdA/:currencyIdB" component={RedirectDuplicateTokenIds} />
+                <Route path="/create" component={AddLiquidity} />
+                <Route path="/create/:currencyIdA" component={RedirectOldAddLiquidityPathStructure} />
+                <Route path="/create/:currencyIdA/:currencyIdB" component={RedirectDuplicateTokenIds} />
+                <Route strict path="/remove/:tokens" component={RedirectOldRemoveLiquidityPathStructure} />
+                <Route strict path="/remove/:currencyIdA/:currencyIdB" component={RemoveLiquidity} />
+                {/* <Route component={RedirectPathToSwapOnly} /> */}
               </Switch>
             </Web3ReactManager>
           </div>

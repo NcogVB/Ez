@@ -15,6 +15,7 @@ export default function useSetLiquidityTokensInUrl(
     const onlyAIdExists = currencyIdA && currencyIdA !== 'undefined' && noCurrencyBId;
     const onlyBIdExists = currencyIdB && currencyIdB !== 'undefined' && noCurrencyAId;
 
+    // Only push to history if BOTH are missing or invalid
     if (noCurrencyAId && noCurrencyBId) {
       history?.push(`/add/${usdtAddress}/${nativeSymbol[chainId || 1]}`);
     } else if (onlyAIdExists) {
@@ -22,5 +23,6 @@ export default function useSetLiquidityTokensInUrl(
     } else if (onlyBIdExists) {
       history?.push(`/add/${usdtAddress}/${currencyIdB}`);
     }
+    // If both are present and valid, do nothing
   }, [chainId, currencyIdA, currencyIdB, history, usdtAddress]);
 }

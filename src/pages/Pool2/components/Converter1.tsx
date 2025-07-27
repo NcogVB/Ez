@@ -25,18 +25,8 @@ const Converter1: React.FC = () => {
 
     
 
-    // useDerivedMintInfo expects no arguments
-    const derivedMintInfo = useDerivedMintInfo();
-    const { currencies, dependentField, parsedAmounts, noLiquidity, price, poolTokenPercentage } = derivedMintInfo;
-    const typedValue = (derivedMintInfo as any).typedValue ?? '';
-    const otherTypedValue = (derivedMintInfo as any).otherTypedValue ?? '';
-    const currencyA = currencies?.CURRENCY_A;
-    const currencyB = currencies?.CURRENCY_B;
-    const mintState = useMintState();
-    const currencyBalances = (mintState as any).currencyBalances || {};
-    // useFindTokenAddress expects two arguments: currencyA and currencyB
     // useFindTokenAddress expects chainId as argument (based on error and likely implementation)
-    let tokenOptions = [], tokenAObj, tokenBObj;
+    let tokenOptions: any[] = [], tokenAObj, tokenBObj;
     const findTokenResult = useFindTokenAddress(chainId ? String(chainId) : '');
     if (typeof findTokenResult === 'object' && findTokenResult !== null) {
         tokenOptions = (findTokenResult as any).tokenOptions || [];
@@ -47,11 +37,24 @@ const Converter1: React.FC = () => {
         tokenAObj = undefined;
         tokenBObj = undefined;
     }
-    const independentField = (derivedMintInfo as any).independentField ?? Field.CURRENCY_A;
-
     // UI state for token selection (default to first two tokens in the list)
     const [token1, setToken1] = useState(() => tokenOptions[0]?.address || '');
     const [token2, setToken2] = useState(() => tokenOptions[1]?.address || '');
+    const selectedCurrencyA = useToken(token1) ?? undefined;
+    const selectedCurrencyB = useToken(token2) ?? undefined;
+    const derivedMintInfo = useDerivedMintInfo(selectedCurrencyA, selectedCurrencyB);
+    const independentField = (derivedMintInfo as any).independentField ?? Field.CURRENCY_A;
+    const { currencies, dependentField, parsedAmounts, noLiquidity, price, poolTokenPercentage } = derivedMintInfo;
+    const typedValue = (derivedMintInfo as any).typedValue ?? '';
+    const otherTypedValue = (derivedMintInfo as any).otherTypedValue ?? '';
+    const currencyA = currencies?.CURRENCY_A;
+    const currencyB = currencies?.CURRENCY_B;
+    const mintState = useMintState();
+    const currencyBalances = (mintState as any).currencyBalances || {};
+    // useFindTokenAddress expects two arguments: currencyA and currencyB
+    // useFindTokenAddress expects chainId as argument (based on error and likely implementation)
+    // ...existing code...
+
     const [activeTab, setActiveTab] = useState<'exchange' | 'pool'>('pool');
 
 

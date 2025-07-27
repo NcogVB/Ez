@@ -1,5 +1,4 @@
 import React from 'react'
-import { Search, Send } from 'lucide-react'
 
 const AskExpertsSection = () => (
     <section className="md:py-[140px] py-[50px] px-4">
@@ -9,7 +8,7 @@ const AskExpertsSection = () => (
         </h2>
         <div className="bg-white shadow-[4px_24px_60px_0px_#006D5A40] border-2 border-[#3DBEA3] max-w-[670px] md:rounded-[20px] rounded-[12px] py-[16px] px-[25px] mx-auto flex items-center gap-3">
             <button>
-                <Search />
+                {/* <Search /> */}
             </button>
             <input
                 type="text"
@@ -18,7 +17,7 @@ const AskExpertsSection = () => (
                 className="w-full bg-transparent focus:outline-none text-[14px] leading-[26px] text-[#767676]"
             />
             <button>
-                <Send />
+                {/* <Send /> */}
             </button>
         </div>
         <p className="font-normal text-[14px] leading-[26px] text-center text-[#767676] max-w-[554px] mx-auto pt-[33px]">

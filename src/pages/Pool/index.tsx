@@ -4,7 +4,6 @@ import { Pair } from '@bidelity/sdk';
 import { TOKENS_BIDELITY, TokensQueryResult } from 'pages/Pools/query';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Wallet } from 'lucide-react';
 import AskExpertsSection from '../../components/newHome/AskExpertsSection';
 import EarnPassiveIncomeSection from '../../components/newHome/EarnPassiveIncomeSection';
 import { usePairs } from '../../data/Reserves';
@@ -72,7 +71,7 @@ const Pool = () => {
           >
             <span>⚡</span>
             <span>Join our community</span>
-            <ArrowRight className="w-4 h-4" />
+            {/* <ArrowRight className="w-4 h-4" /> */}
           </button>
           <h1 className="font-semibold text-[40px] leading-[48px] md:text-[80px] md:leading-[88px] text-center align-middle capitalize mb-3 text-[#3DBEA3] max-w-[720px] mx-auto">
             <span className="text-[#2A8576]"> Pool </span> Exchange
@@ -114,7 +113,7 @@ const Pool = () => {
                   }
                 }}
               >
-                <Wallet />
+                {/* <Wallet /> */}
                 <span>Add Liquidity</span>
               </button>
               {/* Loading, No Liquidity, or List Positions */}

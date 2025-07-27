@@ -33,7 +33,6 @@ import Navbar from 'newComponents/Navbar';
 import Footer from 'newComponents/Footer';
 import 'index.css';
 import Pool2 from './Pool2';
-import Swap2 from './Swap2';
 
 
 const LoadingFallback = styled.div`
@@ -102,7 +101,6 @@ export default function App() {
                 <Route path="/faq" component={Faq} />
                 <Route path="/swap" component={Swap} />
                 <Route path="/pool2" component={Pool2} />
-                <Route path="/swap2" component={Swap2} />
                 <Route path="/limit2" component={Limit2} />
                 <Route path="/claim" component={OpenClaimAddressModalAndRedirectToSwap} />
                 <Route path="/pool" component={Pool} />

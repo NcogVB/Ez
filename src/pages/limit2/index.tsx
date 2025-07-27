@@ -1,12 +1,6 @@
 import React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import TradingDashboard from './components/TradingDashboard'
-import {
-    ArrowRight,
-    ChevronDown,
-    CircleQuestionMarkIcon,
-    Wallet,
-} from 'lucide-react'
 import EarnPassiveIncomeSection from './components/EarnPassiveIncomeSection'
 import AskExpertsSection from './components/AskExpertsSection'
 
@@ -178,7 +172,7 @@ const Limit2 = () => {
                     >
                         <span>⚡</span>
                         <span>Join our community</span>
-                        <ArrowRight className="w-4 h-4" />
+                       
                     </button>
                     <h1 className="font-semibold text-[40px] leading-[48px] md:text-[80px] md:leading-[88px] align-middle capitalize mb-3 text-[#3DBEA3] max-w-[720px] text-center mx-auto">
                         <span className="text-[#2A8576]"> Limit </span> Order
@@ -250,13 +244,7 @@ const Limit2 = () => {
                                                     <span className="token-label text-[#000000] text-[16px] font-normal text-left flex-grow ml-3 mr-8">
                                                         {fromToken.symbol}
                                                     </span>
-                                                    <ChevronDown
-                                                        className={`token-arrow transition-transform ${
-                                                            isFromDropdownOpen
-                                                                ? 'rotate-180'
-                                                                : ''
-                                                        }`}
-                                                    />
+                                                    
                                                 </button>
                                                 {isFromDropdownOpen && (
                                                     <ul
@@ -417,13 +405,7 @@ const Limit2 = () => {
                                                     <span className="token-label text-[#000000] text-[16px] font-normal text-left flex-grow ml-3 mr-8">
                                                         {toToken.symbol}
                                                     </span>
-                                                    <ChevronDown
-                                                        className={`ml-auto token-arrow transition-transform ${
-                                                            isToDropdownOpen
-                                                                ? 'rotate-180'
-                                                                : ''
-                                                        }`}
-                                                    />
+                                                    
                                                 </button>
                                                 {isToDropdownOpen && (
                                                     <ul
@@ -531,7 +513,7 @@ const Limit2 = () => {
                                 <div className="flex-1">
                                     <span className="flex items-center gap-2 justify-end">
                                         Slippage Tolerance
-                                        <CircleQuestionMarkIcon />
+                                        
                                     </span>
                                     <div className="flex items-center justify-end mt-4">
                                         <input

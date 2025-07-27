@@ -156,7 +156,7 @@ const Converter1: React.FC = () => {
             [Field.CURRENCY_A]: calculateSlippageAmount(parsedAmountA, noLiquidity ? 0 : allowedSlippage)[0],
             [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0],
         };
-        let estimate, method, args, value;
+        let estimate: any, method: any, args: any[], value: any;
         // Detect if either currency is native ETH (not just symbol string)
         const isETH = (curr: any) => curr && curr.symbol && curr.symbol.toUpperCase() === 'ETH' && curr.address === undefined;
         if (isETH(currencyA) || isETH(currencyB)) {

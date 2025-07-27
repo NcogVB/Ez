@@ -56,7 +56,6 @@ import Media from 'theme/media-breackpoint';
 import { getContractData, nativeSymbol, WETH } from '../../constants/index';
 import AskExpertsSection from '../../components/newHome/AskExpertsSection';
 import EarnPassiveIncomeSection from '../../components/newHome/EarnPassiveIncomeSection';
-import { ArrowRight } from 'lucide-react';
 
 const Addliquidity = styled.div``;
 const ALTop = styled.div`
@@ -410,7 +409,7 @@ export default function AddLiquidity({
           >
             <span>⚡</span>
             <span>Join our community</span>
-            <ArrowRight />
+            
           </button>
           <h1 className="font-semibold text-[40px] leading-[48px] md:text-[80px] md:leading-[88px] text-center align-middle capitalize mb-3 text-[#3DBEA3] max-w-[720px] mx-auto">
             <span className="text-[#2A8576]"> Tokens </span> Exchange with DEX.

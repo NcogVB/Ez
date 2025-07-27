@@ -43,7 +43,7 @@ import { computeTradePriceBreakdown, warningSeverity } from '../../utils/prices'
 import { NavLink } from 'react-router-dom';
 import WalletIco from '../../assets/images/wallet.png';
 import { mobileWidth } from '../../constants';
-import { ArrowRight } from 'lucide-react';
+
 
 export default function Swap() {
   // Get all tokens first
@@ -481,7 +481,6 @@ export default function Swap() {
           >
             <span>⚡</span>
             <span>Join our community</span>
-            <ArrowRight />
           </button>
           <h1 className="font-semibold text-[40px] leading-[48px] md:text-[80px] md:leading-[88px] text-center align-middle capitalize mb-3 text-[#3DBEA3] max-w-[720px] mx-auto">
             <span className="text-[#2A8576]"> Tokens </span> Exchange with DEX.
@@ -541,19 +540,6 @@ export default function Swap() {
                         >
                           {currencies[Field.INPUT] && (
                             <>
-                              {/* @ts-ignore */}
-                              <img
-                                className="token-img rounded-full shadow-[0px_6px_10px_0px_#00000013] size-[23px] min-w-[23px]"
-                                alt={currencies[Field.INPUT]?.name}
-                                src={
-                                  currencies[Field.INPUT] instanceof Token && 'logoURI' in currencies[Field.INPUT]
-                                    ? (currencies[Field.INPUT] as any).logoURI
-                                    : '/default-token.png'
-                                }
-                              />
-                              <span className="token-label text-[#000000] text-[16px] font-normal text-left flex-grow ml-3 mr-8">
-                                {currencies[Field.INPUT]?.symbol}
-                              </span>
                             </>
                           )}
                         </button>
@@ -679,9 +665,10 @@ export default function Swap() {
                                 className="token-img rounded-full shadow-[0px_6px_10px_0px_#00000013] size-[23px] min-w-[23px]"
                                 alt={currencies[Field.OUTPUT]?.name}
                                 src={
-                                  currencies[Field.OUTPUT] instanceof Token && 'logoURI' in currencies[Field.OUTPUT]
-                                    ? (currencies[Field.OUTPUT] as any).logoURI
-                                    : '/default-token.png'
+                                  currencies[Field.OUTPUT] instanceof Token &&
+  typeof (currencies[Field.OUTPUT] as any).logoURI === 'string'
+    ? (currencies[Field.OUTPUT] as any).logoURI
+    : '/default-token.png'
                                 }
                               />
                               <span className="token-label text-[#000000] text-[16px] font-normal text-left flex-grow ml-3 mr-8">

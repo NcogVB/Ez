@@ -66,7 +66,7 @@ const Bridge = () => {
                     method: 'wallet_switchEthereumChain',
                     params: [{ chainId: ethers.utils.hexlify(newChainId) }],
                 });
-            } catch (e: any) {
+            } catch (e) {
                 setError('Failed to switch network: ' + e.message);
             }
         }
@@ -87,7 +87,7 @@ const Bridge = () => {
                 );
                 const bal = await contract.balanceOf(account);
                 setBalance(ethers.utils.formatUnits(bal, selectedToken.decimals));
-            } catch (e: any) {
+            } catch (e) {
                 setError('Error fetching balance');
             }
         };
@@ -153,7 +153,7 @@ const Bridge = () => {
             setTxStatus('Transaction sent: ' + tx.hash);
             await tx.wait();
             setTxStatus('Bridge complete! Tx: ' + tx.hash);
-        } catch (e: any) {
+        } catch (e){
             let reason = e.message;
             if (e.data && typeof e.data === 'string') {
                 reason = e.data;
